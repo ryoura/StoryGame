@@ -7,40 +7,41 @@ public class Fade : MonoBehaviour
 {
     public Image m_Panelimage;
 
-    float m_fadespeed = 0.002f;
+    public Image m_nextBackGround;
+
+    public Image m_backGround;
+
+    [SerializeField]
+    Story story;
+
+    float m_fadespeed = 0.1f;
 
     float alfa;
 
     bool m_fadeOut = true;
-    bool m_fadeIn = false;
+    //bool m_fadeIn = false;
 
     void Start()
     {
         m_Panelimage = GetComponent<Image>();
     }
 
-    void Update()
-    {
-        //if (m_fadeOut)
-        //{
-        //    FadeOut();
-        //}
-        //if (m_fadeIn)
-        //{
-        //    FadeIn();
-        //}
-    }
 
     /// <summary>
     /// ‚¾‚ñ‚¾‚ñ–¾‚é‚­‚È‚é
     /// </summary>
-    public void FadeIn() 
+    public IEnumerator FadeIn()
     {
-        alfa -= m_fadespeed;
-        m_Panelimage.color = new Color(0, 0, 0, alfa);
-        if (alfa >= 1)
+        m_Panelimage.enabled = true;
+        while (alfa >= 1)
         {
-            m_fadeIn = false;
+            alfa -= m_fadespeed;
+            m_Panelimage.color = new Color(0, 0, 0, alfa);
+            yield return new WaitForSeconds(0.1f);
+        }
+        if (alfa <= 1)
+        {
+            //m_fadeIn = false;
             m_Panelimage.enabled = false;
         }
     }
@@ -48,15 +49,20 @@ public class Fade : MonoBehaviour
     /// <summary>
     /// ‚¾‚ñ‚¾‚ñˆÃ‚­‚È‚é
     /// </summary>
-    public void FadeOut() 
+    public IEnumerator FadeOut()
     {
         m_Panelimage.enabled = true;
-        alfa += m_fadespeed;
-        m_Panelimage.color = new Color(0, 0, 0, alfa);
+        while (alfa <= 1)
+        {
+            alfa += m_fadespeed;
+            m_Panelimage.color = new Color(0, 0, 0, alfa);
+            yield return new WaitForSeconds(0.1f);
+        }
         if (alfa >= 1)
         {
-            m_fadeOut = false;
-            m_fadeIn = true;
+            m_Panelimage.enabled = false;
+            m_backGround.enabled = false;
+            m_nextBackGround.enabled = true;
         }
     }
 }
