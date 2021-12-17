@@ -14,13 +14,11 @@ public class Fade : MonoBehaviour
     [SerializeField]
     Story story;
 
-    float m_fadespeed = 0.1f;
+    float m_fadespeed = 0.05f;
 
     float alfa;
 
-    bool m_fadeOut = true;
-    //bool m_fadeIn = false;
-
+    float m_fadeIn = 1;
     void Start()
     {
         m_Panelimage = GetComponent<Image>();
@@ -33,16 +31,16 @@ public class Fade : MonoBehaviour
     public IEnumerator FadeIn()
     {
         m_Panelimage.enabled = true;
-        while (alfa >= 1)
+        while (m_fadeIn <= 1)
         {
-            alfa -= m_fadespeed;
-            m_Panelimage.color = new Color(0, 0, 0, alfa);
+            m_fadeIn -= m_fadespeed;
+            m_Panelimage.color = new Color(0, 0, 0, m_fadeIn);
             yield return new WaitForSeconds(0.1f);
         }
-        if (alfa <= 1)
+        if (m_fadeIn <= 0)
         {
-            //m_fadeIn = false;
             m_Panelimage.enabled = false;
+            story.NextScene();
         }
     }
 
@@ -63,6 +61,7 @@ public class Fade : MonoBehaviour
             m_Panelimage.enabled = false;
             m_backGround.enabled = false;
             m_nextBackGround.enabled = true;
+            yield return FadeIn();
         }
     }
 }

@@ -90,7 +90,6 @@ public class Story : MonoBehaviour
         if (m_textList[m_conversational] == "end")
         {
             StartCoroutine(fade.FadeOut());
-            //StartCoroutine(fade.FadeIn());
             m_end = true;
         }
         else
@@ -107,5 +106,11 @@ public class Story : MonoBehaviour
         m_conversational++;
         m_serifu = 1;
         Caiwa(m_textList[m_conversational]);
+    }
+
+    public void NextScene() 
+    {
+        Debug.Log(m_end);
+        m_end = false;
     }
 }
