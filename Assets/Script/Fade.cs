@@ -22,6 +22,7 @@ public class Fade : MonoBehaviour
     void Start()
     {
         m_Panelimage = GetComponent<Image>();
+        story = FindObjectOfType<Story>();
     }
 
 
@@ -31,17 +32,14 @@ public class Fade : MonoBehaviour
     public IEnumerator FadeIn()
     {
         m_Panelimage.enabled = true;
-        while (m_fadeIn <= 1)
+        while (m_fadeIn >= 0)
         {
             m_fadeIn -= m_fadespeed;
             m_Panelimage.color = new Color(0, 0, 0, m_fadeIn);
             yield return new WaitForSeconds(0.1f);
         }
-        if (m_fadeIn <= 0)
-        {
-            m_Panelimage.enabled = false;
-            story.NextScene();
-        }
+        m_Panelimage.enabled = false;
+        story.NextScene();
     }
 
     /// <summary>
@@ -63,5 +61,15 @@ public class Fade : MonoBehaviour
             m_nextBackGround.enabled = true;
             yield return FadeIn();
         }
+    }
+
+    public IEnumerator CharactorFadeIn()
+    {
+        yield return null;
+    }
+
+    public IEnumerator CharactorFadeOut() 
+    {
+        yield return null;
     }
 }
