@@ -9,16 +9,20 @@ public class Story : MonoBehaviour
     private Text m_messageView = null;
 
     [SerializeField]
-    private Text m_nameView = null; 
+    private Text m_nameView = null;
+
+    [SerializeField]
+    private GameObject[] m_player;
+
+    float m_fadespeed = 0.05f;
+
+    float alfa;
 
     //次のセリフ
     int m_serifu = 1;
 
     //会話文
     int m_conversational = 0;
-
-    //文字をスキップする
-    bool m_skip = true;
 
     //コルーチンの変数
     Coroutine m_coroutine;
@@ -32,6 +36,8 @@ public class Story : MonoBehaviour
     //名前とセリフ
     string[] m_nameList;
 
+    [SerializeField]
+    Fade fade;
     private void Start()
     {
         m_textLoad = (Resources.Load("Story", typeof(TextAsset)) as TextAsset).text;
@@ -39,59 +45,148 @@ public class Story : MonoBehaviour
         Caiwa(m_textList[m_conversational]);
     }
 
-    private IEnumerator ShowMessagesAsync(string messages)
+    private IEnumerator ShowMessagesAsync(string[] messages)
     {
+        yield return null;
         m_messageView.text = "";
-        foreach (var ch in messages) // 文字列の先頭から1文字ずつ処理
+        int a = 0;
+        for (int k = m_serifu; k < messages.Length; k++)
         {
-            m_messageView.text += ch; // 一文字追加
-
-            // これ待っている間、スキップできない
-            yield return new WaitForSeconds(0.5F); // 指定秒待つ
-        }
-        m_skip = false;
-        m_serifu++;
-    }
-
-    private void Update()
-    {
-        if (Input.GetMouseButtonDown(0))
-        {
-            if (m_serifu < m_nameList.Length)
+            string m = CommandCheck(messages[k]);
+            for (int i = 0; i < m.Length;)
             {
-                
-                if (m_skip)
+                if (a >= 10)
                 {
-                    StopCoroutine(m_coroutine);
-                    m_messageView.text = m_nameList[m_serifu];
-                    m_serifu++;
-                    m_skip = false;
+                    m_messageView.text += m[i]; // 一文字追加
+                    a = 0;
+                    i++;
                 }
-                else
+                if (Input.GetMouseButtonDown(0))
                 {
-                    m_skip = true;
-                    m_coroutine = StartCoroutine(ShowMessagesAsync(m_nameList[m_serifu]));
+                    break;
                 }
+                a++;
+                yield return null;
             }
-            else
+            m_messageView.text = m;
+            while (true)
             {
-                Next();
+                if (Input.GetMouseButtonDown(0))
+                {
+                    m_messageView.text = "";
+                    break;
+                }
+                yield return null;
             }
+            yield return null;
         }
-    }
-
-    void Caiwa(string c) 
-    {
-        m_nameList = c.Split(char.Parse("\n"));
-        m_nameView.text = m_nameList[0];
-        m_coroutine = StartCoroutine(ShowMessagesAsync(m_nameList[m_serifu]));
-    }
-
-    void Next() 
-    {
-        m_skip = true;
+        yield return null;
         m_conversational++;
         m_serifu = 1;
+        Caiwa(m_textList[m_conversational]);
+    }
+
+    void Command(string command)
+    {
+        //c.fi,0 コマンド.フェードイン,プレイヤー配列の何番目か
+        string[] f = command.Split(char.Parse(","));
+        switch (f[0])
+        {
+            case "fi":
+                StartCoroutine(FadeIn(m_player[int.Parse(f[1])].GetComponent<Image>()));
+                break;
+            case "fo":
+                StartCoroutine(FadeOut(m_player[int.Parse(f[1])].GetComponent<Image>()));
+                break;
+            case "face":
+                m_player[int.Parse(f[1])].GetComponent<Player>().Face(int.Parse(f[2]));
+
+                break;
+        }
+    }
+
+    string CommandCheck(string messages)
+    {
+        string[] s = messages.Split(char.Parse(" "));
+        if (s.Length == 1)
+        {
+            return messages;
+        }
+        string[] f = s[1].Split(char.Parse("."));
+        Command(f[1]);
+
+        return s[0];
+    }
+    void Caiwa(string c)
+    {
+        string[] f = c.Split(char.Parse("."));
+        if (f[0] == "end")
+        {
+            StartCoroutine(fade.FadeOut());
+        }
+        else if (f[0] == "c")
+        {
+            Command(f[1]);
+        }
+        else
+        {
+            m_nameList = c.Split(char.Parse("\n"));
+            m_nameView.text = m_nameList[0].Trim();
+            m_coroutine = StartCoroutine(ShowMessagesAsync(m_nameList));
+        }
+    }
+    /// <summary>
+    /// だんだん明るくなる
+    /// </summary>
+    public IEnumerator FadeIn(Image image)
+    {
+        float fadeIn = 0;
+        int tien = 0;
+        while (fadeIn <= 1)
+        {
+            if (tien >= 20)
+            {
+                fadeIn += m_fadespeed;
+                image.color = new Color(1, 1, 1, fadeIn);
+                tien = 0;
+            }
+            if (Input.GetMouseButtonDown(0))
+            {
+                break;
+            }
+            tien++;
+            yield return null;
+        }
+        image.color = new Color(1, 1, 1, 1);
+        NextScene();
+    }
+    /// <summary>
+    /// だんだん暗くなる
+    /// </summary>
+    public IEnumerator FadeOut(Image image)
+    {
+        int tien = 0;
+        while (alfa >= 0)
+        {
+            if (tien >= 20)
+            {
+                alfa -= m_fadespeed;
+                image.color = new Color(1, 1, 1, alfa);
+                tien = 0;
+            }
+            if (Input.GetMouseButtonDown(0))
+            {
+                break;
+            }
+            tien++;
+            yield return null;
+        }
+        image.color = new Color(1, 1, 1, 0);
+        NextScene();
+    }
+    public void NextScene()
+    {
+        m_conversational++;
         Caiwa(m_textList[m_conversational]);
     }
 }
