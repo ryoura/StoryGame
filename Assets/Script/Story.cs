@@ -9,7 +9,7 @@ public class Story : MonoBehaviour
     private Text m_messageView = null;
 
     [SerializeField]
-    private Text m_nameView = null; 
+    private Text m_nameView = null;
 
     //次のセリフ
     int m_serifu = 1;
@@ -31,6 +31,11 @@ public class Story : MonoBehaviour
 
     //名前とセリフ
     string[] m_nameList;
+
+    [SerializeField]
+    Fade fade;
+
+    bool m_end = false;
 
     private void Start()
     {
@@ -55,11 +60,10 @@ public class Story : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && !m_end)
         {
             if (m_serifu < m_nameList.Length)
             {
-                
                 if (m_skip)
                 {
                     StopCoroutine(m_coroutine);
@@ -71,6 +75,7 @@ public class Story : MonoBehaviour
                 {
                     m_skip = true;
                     m_coroutine = StartCoroutine(ShowMessagesAsync(m_nameList[m_serifu]));
+
                 }
             }
             else
@@ -80,14 +85,23 @@ public class Story : MonoBehaviour
         }
     }
 
-    void Caiwa(string c) 
-    {
-        m_nameList = c.Split(char.Parse("\n"));
-        m_nameView.text = m_nameList[0];
-        m_coroutine = StartCoroutine(ShowMessagesAsync(m_nameList[m_serifu]));
-    }
+    void Caiwa(string c)
+    { 
+        if (m_textList[m_conversational] == "end")
+        {
+            StartCoroutine(fade.FadeOut());
+            //StartCoroutine(fade.FadeIn());
+            m_end = true;
+        }
+        else
+        {
+            m_nameList = c.Split(char.Parse("\n"));
+            m_nameView.text = m_nameList[0];
+            m_coroutine = StartCoroutine(ShowMessagesAsync(m_nameList[m_serifu]));
+        }
 
-    void Next() 
+    }
+    void Next()
     {
         m_skip = true;
         m_conversational++;
