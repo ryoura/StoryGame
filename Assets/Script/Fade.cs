@@ -63,13 +63,15 @@ public class Fade : MonoBehaviour
         }
     }
 
-    public IEnumerator CharactorFadeIn()
+    public IEnumerator BackFedeOut()
     {
-        yield return null;
-    }
-
-    public IEnumerator CharactorFadeOut() 
-    {
+        float alfa = 1;
+        while (alfa <= 1)
+        {
+            alfa -= m_fadespeed;
+            m_nextBackGround.color = new Color(1, 1, 1, alfa);
+            yield return new WaitForSeconds(0.1f);
+        }
         yield return null;
     }
 }

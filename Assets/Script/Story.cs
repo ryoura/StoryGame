@@ -14,9 +14,9 @@ public class Story : MonoBehaviour
     [SerializeField]
     private GameObject[] m_player;
 
-    float m_fadespeed = 0.05f;
+    public float m_fadespeed;
 
-    float alfa;
+    float alfa = 1;
 
     //ŽŸ‚ÌƒZƒŠƒt
     int m_serifu = 1;
@@ -55,7 +55,7 @@ public class Story : MonoBehaviour
             string m = CommandCheck(messages[k]);
             for (int i = 0; i < m.Length;)
             {
-                if (a >= 10)
+                if (a >= 100)
                 {
                     m_messageView.text += m[i]; // ˆê•¶Žš’Ç‰Á
                     a = 0;
@@ -100,7 +100,6 @@ public class Story : MonoBehaviour
                 break;
             case "face":
                 m_player[int.Parse(f[1])].GetComponent<Player>().Face(int.Parse(f[2]));
-
                 break;
         }
     }
@@ -127,6 +126,10 @@ public class Story : MonoBehaviour
         else if (f[0] == "c")
         {
             Command(f[1]);
+        }
+        else if (f[0] == "backEnd")
+        {
+            StartCoroutine(fade.BackFedeOut());
         }
         else
         {
@@ -166,7 +169,7 @@ public class Story : MonoBehaviour
     public IEnumerator FadeOut(Image image)
     {
         int tien = 0;
-        while (alfa >= 0)
+        while (alfa > 0)
         {
             if (tien >= 20)
             {
